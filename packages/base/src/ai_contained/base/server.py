@@ -1,5 +1,6 @@
 """MCP server entry point."""
 
+import argparse
 import os
 
 from fastmcp import FastMCP
@@ -19,10 +20,15 @@ async def health_check(request):  # type: ignore[no-untyped-def]
 
 def main() -> None:
     """Start the MCP HTTP server."""
+    parser = argparse.ArgumentParser(description="AI-Contained MCP server")
+    parser.add_argument("--host", default=os.getenv("ADDRESS", "0.0.0.0"), help="Address to bind to")
+    parser.add_argument("--port", type=int, default=int(os.getenv("PORT", "8080")), help="Port to listen on")
+    args = parser.parse_args()
+
     mcp.run(
         transport="http",
-        host=os.getenv("ADDRESS", "0.0.0.0"),
-        port=int(os.getenv("PORT", "8080")),
+        host=args.host,
+        port=args.port,
         show_banner=False,
     )
 

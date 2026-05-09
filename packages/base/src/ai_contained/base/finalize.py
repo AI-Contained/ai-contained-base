@@ -1,5 +1,6 @@
 """Finalize script — installs all providers at image build time."""
 
+import argparse
 import glob
 import os
 import pathlib
@@ -13,6 +14,8 @@ if not UV:
 
 def main() -> None:
     """Symlink provider binaries and install all provider packages."""
+    parser = argparse.ArgumentParser(description="Install AI-Contained providers into the image")
+    parser.parse_args()
     for b in glob.glob("/opt/ai-contained-*/bin/*"):
         p = pathlib.Path(b)
         dest = pathlib.Path(f"/usr/local/bin/{p.name}")
