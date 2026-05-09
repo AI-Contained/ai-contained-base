@@ -7,7 +7,7 @@ import pathlib
 import shutil
 import subprocess
 
-UV = shutil.which("uv")
+UV: str = shutil.which("uv") or ""
 if not UV:
     raise RuntimeError("uv not found in PATH")
 
@@ -22,8 +22,6 @@ def main() -> None:
         if p.is_file() and not dest.exists():
             os.symlink(b, dest)
 
+    uv_install = [UV, "pip", "install", "--system", "--python", "/usr/local/bin/python3", "--break-system-packages"]
     for provider in sorted(glob.glob("/opt/ai-contained-*/")):
-        subprocess.run(
-            [UV, "pip", "install", "--system", "--python", "/usr/local/bin/python3", "--break-system-packages", provider],
-            check=True,
-        )
+        subprocess.run([*uv_install, provider], check=True)
