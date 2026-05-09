@@ -3,13 +3,18 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "ai-contained-core-mcp"
+name = "ai-contained-base"
 version = "0.1.0"
 description = "Base MCP server with plugin auto-discovery for AI-Contained"
 requires-python = ">=3.12"
 dependencies = [
     "fastmcp==3.2.4",
+    "starlette",
 ]
+
+[project.scripts]
+ai-contained-server = "ai_contained.base.server:main"
+ai-contained-finalize = "ai_contained.base.finalize:main"
 
 [project.optional-dependencies]
 dev = [
