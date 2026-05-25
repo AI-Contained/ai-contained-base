@@ -14,7 +14,7 @@ class MockProvider:
         self.name = name
         self._calls: list[FastMCP] = []
 
-        def register(mcp: FastMCP) -> None:
+        async def register(mcp: FastMCP) -> None:
             self._calls.append(mcp)
 
         entry_point = MagicMock()
@@ -70,15 +70,15 @@ def describe_load_providers() -> None:
         return ProviderSet(filesystem=fs, shell=shell, git=git)
 
     def describe_with_no_env_vars() -> None:
-        def it_loads_all_discovered_providers(mcp: FastMCP, providers: ProviderSet) -> None:
-            load_providers(mcp)
+        async def it_loads_all_discovered_providers(mcp: FastMCP, providers: ProviderSet) -> None:
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(1)
             assert_that(providers.git.times_called()).is_equal_to(1)
 
-        def it_returns_the_mcp_instance(mcp: FastMCP, providers: ProviderSet) -> None:
-            result = load_providers(mcp)
+        async def it_returns_the_mcp_instance(mcp: FastMCP, providers: ProviderSet) -> None:
+            result = await load_providers(mcp)
 
             assert_that(result).is_same_as(mcp)
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
@@ -86,108 +86,108 @@ def describe_load_providers() -> None:
             assert_that(providers.git.times_called()).is_equal_to(1)
 
     def describe_ALLOWED_PROVIDERS() -> None:
-        def it_loads_only_the_allowed_provider(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_loads_only_the_allowed_provider(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("ALLOWED_PROVIDERS", providers.filesystem.name)
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        def it_loads_multiple_allowed_providers(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_loads_multiple_allowed_providers(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("ALLOWED_PROVIDERS", f"{providers.filesystem.name},{providers.shell.name}")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(1)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        def it_loads_nothing_when_no_providers_match(
+        async def it_loads_nothing_when_no_providers_match(
             mcp: FastMCP, context: MockContext, providers: ProviderSet
         ) -> None:
             context.setenv("ALLOWED_PROVIDERS", "non-existent")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(0)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        def it_is_case_sensitive(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_is_case_sensitive(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("ALLOWED_PROVIDERS", "Filesystem")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(0)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        def it_does_not_load_when_name_has_surrounding_whitespace(
+        async def it_does_not_load_when_name_has_surrounding_whitespace(
             mcp: FastMCP, context: MockContext, providers: ProviderSet
         ) -> None:
             context.setenv("ALLOWED_PROVIDERS", f" {providers.filesystem.name} ")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(0)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        def it_treats_comma_only_value_as_unset(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_treats_comma_only_value_as_unset(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("ALLOWED_PROVIDERS", ",")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(1)
             assert_that(providers.git.times_called()).is_equal_to(1)
 
     def describe_DENIED_PROVIDERS() -> None:
-        def it_skips_the_denied_provider(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_skips_the_denied_provider(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("DENIED_PROVIDERS", providers.shell.name)
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(1)
 
-        def it_skips_multiple_denied_providers(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_skips_multiple_denied_providers(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("DENIED_PROVIDERS", f"{providers.shell.name},{providers.git.name}")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        def it_loads_all_when_no_providers_match_deny_list(
+        async def it_loads_all_when_no_providers_match_deny_list(
             mcp: FastMCP, context: MockContext, providers: ProviderSet
         ) -> None:
             context.setenv("DENIED_PROVIDERS", "non-existent")
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(1)
             assert_that(providers.git.times_called()).is_equal_to(1)
 
     def describe_ALLOWED_and_DENIED_together() -> None:
-        def it_applies_deny_after_allow(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_applies_deny_after_allow(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
             context.setenv("ALLOWED_PROVIDERS", f"{providers.filesystem.name},{providers.shell.name}")
             context.setenv("DENIED_PROVIDERS", providers.shell.name)
 
-            load_providers(mcp)
+            await load_providers(mcp)
 
             assert_that(providers.filesystem.times_called()).is_equal_to(1)
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
     def describe_error_handling() -> None:
-        def it_raises_and_halts_when_register_fails(mcp: FastMCP, context: MockContext) -> None:
-            def fail(mcp: FastMCP) -> None:
+        async def it_raises_and_halts_when_register_fails(mcp: FastMCP, context: MockContext) -> None:
+            async def fail(mcp: FastMCP) -> None:
                 raise RuntimeError("register failed")
 
             bad = MockProvider("bad")
@@ -196,6 +196,6 @@ def describe_load_providers() -> None:
             context.set_providers(bad, good)
 
             with pytest.raises(RuntimeError, match="register failed"):
-                load_providers(mcp)
+                await load_providers(mcp)
 
             assert_that(good.times_called()).is_equal_to(0)

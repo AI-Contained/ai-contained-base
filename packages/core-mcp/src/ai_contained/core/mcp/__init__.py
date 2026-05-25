@@ -23,7 +23,7 @@ def _is_allowed(provider_name: str, allowed: list[str], denied: list[str]) -> bo
     return False
 
 
-def load_providers(mcp: FastMCP) -> FastMCP:
+async def load_providers(mcp: FastMCP) -> FastMCP:
     """Auto-discover and load all installed ai-contained providers into a FastMCP instance."""
     allowed = _env_split_csv("ALLOWED_PROVIDERS")
     denied = _env_split_csv("DENIED_PROVIDERS")
@@ -35,7 +35,7 @@ def load_providers(mcp: FastMCP) -> FastMCP:
             continue
         try:
             provider = entry_point.load()
-            provider(mcp)
+            await provider(mcp)
             logger.info(f"✅ Loaded AI-Contained provider: {provider_name} {version}")
         except Exception as e:
             logger.error(f"❌ Failed to load AI-Contained provider: {provider_name} {version} — {e}")
