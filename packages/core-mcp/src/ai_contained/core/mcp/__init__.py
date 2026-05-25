@@ -27,6 +27,7 @@ async def load_providers(mcp: FastMCP) -> FastMCP:
     """Auto-discover and load all installed ai-contained providers into a FastMCP instance."""
     allowed = _env_split_csv("ALLOWED_PROVIDERS")
     denied = _env_split_csv("DENIED_PROVIDERS")
+    logger.debug(f"Loading providers (allowed={allowed or '*'}, denied={denied or 'none'})")
     for entry_point in importlib.metadata.entry_points(group="ai_contained.provider"):
         provider_name = entry_point.name
         version = f"v{entry_point.dist.version}" if entry_point.dist is not None else "v???"

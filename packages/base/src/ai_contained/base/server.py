@@ -4,16 +4,23 @@ import argparse
 import os
 
 from fastmcp import FastMCP
+from fastmcp.server.lifespan import lifespan
 from starlette.responses import JSONResponse
 
 from ai_contained.core.mcp import load_providers
 
-mcp = FastMCP("ai-contained")
-load_providers(mcp)
+
+@lifespan
+async def load_providers_lifespan(server: FastMCP):
+    await load_providers(server)
+    yield
+
+
+mcp = FastMCP("ai-contained", lifespan=load_providers_lifespan)
 
 
 @mcp.custom_route("/health", methods=["GET"])
-async def health_check(request):  # type: ignore[no-untyped-def]
+async def health_check(request):
     """Return server health status."""
     return JSONResponse({"status": "healthy"})
 
