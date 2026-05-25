@@ -14,6 +14,7 @@ from ai_contained.core.mcp import load_providers
 
 @lifespan
 async def load_providers_lifespan(server: FastMCP) -> AsyncGenerator[None, None]:
+    """Discover and load all installed providers before the server starts accepting requests."""
     await load_providers(server)
     yield
 
