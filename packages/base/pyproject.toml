@@ -51,7 +51,7 @@ markers = [
 ]
 
 [tool.mypy]
-mypy_path = "src"
+mypy_path = "src:../core-mcp/src"
 explicit_package_bases = true
 strict = true
 
