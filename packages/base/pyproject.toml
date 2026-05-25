@@ -9,7 +9,7 @@ description = "Base Docker image with MCP server and provider finalization for A
 requires-python = ">=3.12"
 dependencies = [
     "ai-contained-core-mcp",
-    "fastmcp==3.2.4",
+    "fastmcp==3.3.1",
     "starlette",
 ]
 
