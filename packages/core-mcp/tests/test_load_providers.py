@@ -86,7 +86,9 @@ def describe_load_providers() -> None:
             assert_that(providers.git.times_called()).is_equal_to(1)
 
     def describe_ALLOWED_PROVIDERS() -> None:
-        async def it_loads_only_the_allowed_provider(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_loads_only_the_allowed_provider(
+            mcp: FastMCP, context: MockContext, providers: ProviderSet
+        ) -> None:
             context.setenv("ALLOWED_PROVIDERS", providers.filesystem.name)
 
             await load_providers(mcp)
@@ -95,7 +97,9 @@ def describe_load_providers() -> None:
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        async def it_loads_multiple_allowed_providers(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_loads_multiple_allowed_providers(
+            mcp: FastMCP, context: MockContext, providers: ProviderSet
+        ) -> None:
             context.setenv("ALLOWED_PROVIDERS", f"{providers.filesystem.name},{providers.shell.name}")
 
             await load_providers(mcp)
@@ -135,7 +139,9 @@ def describe_load_providers() -> None:
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(0)
 
-        async def it_treats_comma_only_value_as_unset(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_treats_comma_only_value_as_unset(
+            mcp: FastMCP, context: MockContext, providers: ProviderSet
+        ) -> None:
             context.setenv("ALLOWED_PROVIDERS", ",")
 
             await load_providers(mcp)
@@ -154,7 +160,9 @@ def describe_load_providers() -> None:
             assert_that(providers.shell.times_called()).is_equal_to(0)
             assert_that(providers.git.times_called()).is_equal_to(1)
 
-        async def it_skips_multiple_denied_providers(mcp: FastMCP, context: MockContext, providers: ProviderSet) -> None:
+        async def it_skips_multiple_denied_providers(
+            mcp: FastMCP, context: MockContext, providers: ProviderSet
+        ) -> None:
             context.setenv("DENIED_PROVIDERS", f"{providers.shell.name},{providers.git.name}")
 
             await load_providers(mcp)
